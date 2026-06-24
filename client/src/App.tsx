@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch, Router as WouterRouter } from "wouter";
+import { Route, Switch, Router } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 
 // Detect base path for GitHub Pages deployment
 const base = import.meta.env.BASE_URL.replace(/\/$/, "") || "";
+console.log("[Router] base:", base, "pathname:", window.location.pathname);
 
 function Routes() {
   return (
@@ -36,9 +37,9 @@ function App() {
         <LanguageProvider>
           <TooltipProvider>
             <Toaster />
-            <WouterRouter base={base}>
+            <Router base={base}>
               <Routes />
-            </WouterRouter>
+            </Router>
           </TooltipProvider>
         </LanguageProvider>
       </ThemeProvider>
