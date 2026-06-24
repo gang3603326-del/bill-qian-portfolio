@@ -9,7 +9,6 @@ import Home from "./pages/Home";
 
 // Detect base path for GitHub Pages deployment
 const base = import.meta.env.BASE_URL.replace(/\/$/, "") || "";
-console.log("[Router] base:", base, "pathname:", window.location.pathname);
 
 function Routes() {
   return (

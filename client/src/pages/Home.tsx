@@ -211,7 +211,7 @@ function ContactSection() {
                 <p className="text-muted-foreground text-sm mb-4">{t("contact.wechat.scan")}</p>
                 <div className="w-32 h-32 bg-white rounded-lg p-1 mx-auto">
                   <img 
-                    src="/manus-storage/wechat_qrcode_860e3e5c.png" 
+                    src="/bill-qian-portfolio/assets/wechat_qrcode.png" 
                     alt="微信二维码" 
                     className="w-full h-full object-contain"
                   />
@@ -337,7 +337,7 @@ export default function Home() {
               <Globe className="w-3 h-3" />
               {lang === "zh" ? "EN" : "中"}
             </button>
-            <a href="/manus-storage/bill_qian_resume_c40f30d2.pdf" download="钱刚_SMT专家简历.pdf">
+            <a href="/bill-qian-portfolio/assets/bill_qian_resume.pdf" download="钱刚_SMT专家简历.pdf">
               <Button className="bg-[oklch(0.82_0.16_85)] hover:bg-[oklch(0.78_0.16_85)] text-[oklch(0.12_0.01_250)] gap-1.5 md:gap-2 text-xs md:text-sm font-semibold px-3 md:px-4">
                 <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 <span className="hidden sm:inline">{t("nav.downloadFull")}</span>{t("nav.download")}
@@ -852,7 +852,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6">
             {/* 文档 1: SMT新人调机培训 */}
             <a 
-              href="/manus-storage/smt_training_5095346e.pptx" 
+              href="/bill-qian-portfolio/assets/smt_training.pptx" 
               download="SMT新人调机培训：从理论到实操_(专业版).pptx"
               className="glass-panel p-6 neon-border hover:border-[oklch(0.75_0.18_220/0.6)] transition-all duration-300 group cursor-pointer"
             >
@@ -875,7 +875,7 @@ export default function Home() {
 
             {/* 文档 2: BGA印刷短路改善 */}
             <a 
-              href="/manus-storage/bga_report_b625d137.pptx" 
+              href="/bill-qian-portfolio/assets/bga_report.pptx" 
               download="0.3_Pitch_BGA_印刷短路改善专项技术报告.pptx"
               className="glass-panel p-6 neon-border hover:border-[oklch(0.82_0.16_85/0.6)] transition-all duration-300 group cursor-pointer"
             >
@@ -898,7 +898,7 @@ export default function Home() {
 
             {/* 文档 3: 设备运行分析报告 */}
             <a 
-              href="/manus-storage/smt_equipment_report_fa18316b.pptx" 
+              href="/bill-qian-portfolio/assets/smt_equipment_report.pptx" 
               download="2019_Q1_SMT_设备运行专项分析报告.pptx"
               className="glass-panel p-6 neon-border hover:border-[oklch(0.75_0.18_220/0.6)] transition-all duration-300 group cursor-pointer"
             >
@@ -929,7 +929,7 @@ export default function Home() {
       <footer className="border-t border-border/30 py-8">
         <div className="container text-center text-muted-foreground text-sm">
           <a
-            href="/manus-storage/bill_qian_resume_c40f30d2.pdf"
+            href="/bill-qian-portfolio/assets/bill_qian_resume.pdf"
             download="钱刚_SMT专家简历.pdf"
             className="inline-flex items-center gap-2 mb-4 px-5 py-2.5 rounded-lg bg-[oklch(0.75_0.18_220/0.1)] border border-[oklch(0.75_0.18_220/0.3)] text-[oklch(0.75_0.18_220)] hover:bg-[oklch(0.75_0.18_220/0.2)] transition-all text-sm font-medium"
           >
