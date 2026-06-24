@@ -1,0 +1,538 @@
+import { createContext, useContext, useState, ReactNode } from "react";
+
+type Language = "zh" | "en";
+
+interface LanguageContextType {
+  lang: Language;
+  setLang: (lang: Language) => void;
+  t: (key: string) => string;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export function useLanguage() {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) throw new Error("useLanguage must be used within LanguageProvider");
+  return ctx;
+}
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [lang, setLang] = useState<Language>(() => {
+    const saved = localStorage.getItem("lang");
+    return (saved === "en" || saved === "zh") ? saved : "zh";
+  });
+
+  const handleSetLang = (newLang: Language) => {
+    setLang(newLang);
+    localStorage.setItem("lang", newLang);
+  };
+
+  const t = (key: string): string => {
+    const translations = lang === "zh" ? zh : en;
+    return (translations as Record<string, string>)[key] || key;
+  };
+
+  return (
+    <LanguageContext.Provider value={{ lang, setLang: handleSetLang, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+// ============================================================
+// 中文翻译
+// ============================================================
+const zh: Record<string, string> = {
+  // Nav
+  "nav.results": "核心成果",
+  "nav.career": "工作经历",
+  "nav.projects": "项目案例",
+  "nav.skills": "技能体系",
+  "nav.documents": "专业文档",
+  "nav.contact": "联系我",
+  "nav.download": "简历",
+  "nav.downloadFull": "下载",
+
+  // Hero
+  "hero.status": "在职看机会 · 观望合适机会",
+  "hero.name": "钱刚",
+  "hero.nameEn": "Bill Qian",
+  "hero.title": "SMT ME主管 — 设备·工艺·生产 全能型",
+  "hero.desc": "15年+ SMT 制程与设备管理经验 · 精通 Fuji全系列 贴片机 · 设备自主维护率 85%+ · SPI 稳定性提升 30%+",
+  "hero.tag.equipment": "设备工程",
+  "hero.tag.process": "工艺工程",
+  "hero.tag.production": "生产管理",
+  "hero.info.role": "SMT ME主管",
+  "hero.info.location": "东南亚/国内",
+  "hero.info.availability": "观望合适机会",
+  "hero.info.status": "在职看机会",
+
+  // KPI
+  "kpi.title": "核心指标",
+  "kpi.subtitle": "用数据说话 — 设备维护、工艺优化、生产管理三位一体的实战成果",
+  "kpi.experience": "SMT行业经验",
+  "kpi.maintenance": "设备自主维护率",
+  "kpi.spi": "SPI稳定性提升",
+  "kpi.uptime": "设备综合稼动率",
+  "kpi.lines": "管理产线数量",
+  "kpi.firstpass": "首件一次通过率",
+  "kpi.costdown": "年度耗材降本",
+  "kpi.efficiency": "产能提升幅度",
+
+  // Core Competency
+  "core.title": "核心能力",
+  "core.subtitle": "设备工程 / 工艺工程 / 生产管理 — 15年跨领域实战积累",
+  "core.equip.title": "设备工程",
+  "core.equip.desc": "精通Fuji全系列贴片机（NXT III/AIM/XPF系列）维护与调试，熟悉DEK/MPM印刷机、Heller回流焊。设备自主维护率85%+，大幅降低外修依赖。擅长设备预防性保养体系搭建、备件管理与故障快速诊断。",
+  "core.process.title": "SMT工艺优化",
+  "core.process.desc": "主导钢网设计优化、锡膏印刷参数调试、回流焊温度曲线优化。成功攻克0.3mm Pitch BGA印刷短路难题，SPI稳定性提升30%+。擅长DOE实验设计，系统性解决焊接缺陷问题。",
+  "core.prod.title": "生产管理",
+  "core.prod.desc": "7年SMT生产主管经验（群光电子），管理20+人团队。精通生产排程、人员调配、品质管控。推动标准化作业流程，实现产能提升8-12%。擅长跨部门协调与越南本地化团队建设。",
+
+  // Career
+  "career.title": "工作经历",
+  "career.jse.role": "SMT主管（ME主管）",
+  "career.jse.company": "捷盛电子（越南）",
+  "career.jse.time": "2024/02 - 至今 | 越南",
+  "career.jse.desc": "负责越南工厂SMT设备管理与工艺优化。主导Fuji NXT III/AIM系列贴片机维护体系搭建，建立设备预防性保养制度。推动SPI印刷工艺改善，攻克0.3mm Pitch BGA印刷短路难题。负责越南本地化技术团队培训与建设，编写全套中越双语培训教材。",
+  "career.xk.role": "SMT工程师",
+  "career.xk.company": "深圳信恳智能电子有限公司",
+  "career.xk.time": "2022/11 - 2024/02 | 深圳",
+  "career.xk.desc": "负责SMT产线设备维护与工艺优化，主要负责Fuji贴片机日常维护与故障排除，参与新产品NPI导入的工艺评估与钢网设计优化。",
+  "career.lfw.role": "SMT设备工程师",
+  "career.lfw.company": "乐依文（半导体）| DIP",
+  "career.lfw.time": "2022/04 - 2022/10 | 深圳",
+  "career.lfw.desc": "负责半导体行业SMT/DIP设备维护，积累了半导体封装领域的设备管理经验，拓展了行业视野。",
+  "career.qg.role": "SMT主管（生产主管）",
+  "career.qg.company": "群光电能（苏州/重庆）",
+  "career.qg.time": "2015/03 - 2022/03 | 苏州/重庆",
+  "career.qg.desc": "7年生产管理经验，从技术员成长为SMT生产主管。管理20+人团队，负责多条SMT产线的生产排程、品质管控与人员培训。推动设备自主维护体系，设备稼动率持续提升。主导多项降本增效项目，年度耗材成本降低8-12%。",
+
+  // Projects
+  "projects.title": "核心项目案例",
+  "projects.p1.title": "工艺持续改进专项 — 0.3mm Pitch BGA攻关",
+  "projects.p1.desc": "针对0.3mm Pitch BGA印刷短路问题，通过DOE实验优化钢网开口设计、锡膏印刷参数和回流焊温度曲线，系统性解决焊接缺陷。",
+  "projects.p1.r1": "直通率↑",
+  "projects.p1.r2": "可复制",
+  "projects.p2.title": "越南SMT产线本地化培训与团队建设",
+  "projects.p2.desc": "从零搭建越南本地化技术团队，编写中越双语培训教材，建立从理论到实操的系统化培训体系，实现技术人员独立上岗。",
+  "projects.p2.r1": "培训5+",
+  "projects.p2.r2": "30+人员",
+  "projects.p2.r3": "系统化",
+
+  // Skills
+  "skills.title": "技能体系",
+  "skills.radar.equipment": "设备维护",
+  "skills.radar.process": "工艺优化",
+  "skills.radar.production": "生产管理",
+  "skills.radar.team": "团队建设",
+  "skills.radar.npi": "NPI导入",
+  "skills.radar.cost": "降本增效",
+  "skills.equip.title": "设备能力",
+  "skills.equip.items": "Fuji NXT III / AIM / XPF 全系列 | DEK/MPM印刷机 | Heller回流焊 | SPI/AOI检测设备 | 设备预防性保养体系",
+  "skills.process.title": "工艺能力",
+  "skills.process.items": "钢网设计优化 | 锡膏印刷参数调试 | 回流焊温度曲线 | DOE实验设计 | SPI数据分析 | BGA/QFN/0201工艺",
+  "skills.prod.title": "管理能力",
+  "skills.prod.items": "生产排程与产能规划 | 团队建设与人员培训 | 品质管控体系 | 降本增效项目推动 | 跨部门协调 | 越南本地化管理",
+  "skills.lang.title": "语言能力",
+  "skills.lang.items": "普通话（母语）| 英语（基础沟通）| 越南语（基础沟通）",
+
+  // Documents
+  "docs.title": "专业文档",
+  "docs.subtitle": "实际工作产出 — 培训教材、技术报告、设备分析",
+  "docs.d1.title": "SMT新人调机培训",
+  "docs.d1.desc": "从理论到实操（专业版）— 越南工厂本地化培训教材",
+  "docs.d2.title": "0.3 Pitch BGA 印刷短路改善",
+  "docs.d2.desc": "专项技术报告 — 工艺攻关实战案例",
+  "docs.d3.title": "SMT 设备运行专项分析报告",
+  "docs.d3.desc": "2019 Q1 技能驱动版 — 设备稼动率与故障分析",
+  "docs.download": "点击下载 PPTX",
+
+  // Core detail
+  "core.equip.h3": "SMT 设备工程",
+  "core.equip.li1": "精通 Fuji NXT I/II/III、AIMEX3C、XPF 全系列贴片机编程、调试与维修",
+  "core.equip.li2": "印刷机（DEK/GKG）深度调机与钢网优化",
+  "core.equip.li3": "回流组炉（BTU/HELLER）温度曲线设计与炉膛维护",
+  "core.equip.li4": "AOI/SPI（OMRON/SAKI）检测程式编写与数据分析",
+  "core.equip.li5": "制定PM计划，MTBA > 400h",
+  "core.equip.stat": "设备自主维护率 85%+ | MTTR ↓2 0%",
+  "core.process.h3": "SMT 工艺工程",
+  "core.process.li1": "熟悉SMT全制程工艺流程，锡膏印刷/贴片/回流组全链路优化",
+  "core.process.li2": "SPI检测稳定性提升30%+",
+  "core.process.li3": "QFN/LGA类器件焊接良率显著改善",
+  "core.process.li4": "爬锡一致性优化、虚焊/偏移等缺陷分析与解决",
+  "core.process.li5": "NPI新产品导入，量产直通率 >98.5%",
+  "core.process.li6": "建立标准化工艺文件库（SOP/WI）",
+  "core.process.stat": "CPH提升15%+ | 建立可复制工艺改善模型",
+  "core.prod.h3": "生产管理",
+  "core.prod.li1": "群光电子7年SMT生产主管经验（SPS电源/LED灯具）",
+  "core.prod.li2": "负责生产计划组织、人员调配与产能布局",
+  "core.prod.li3": "生产过程监督指导与质量控制",
+  "core.prod.li4": "推进7S现场管理制度标准化",
+  "core.prod.li5": "建立现场管理制度与培训体系",
+  "core.prod.li6": "跨部门协作（PE/QE/ME/生产）",
+  "core.prod.stat": "7年生产主管 | 团队管理 | 7S标准化",
+
+  // Career detail
+  "career.jse.title": "SMT主管（ME主管）",
+  "career.jse.badge": "在职",
+  "career.jse.company2": "东莞捷盛电子有限公司（驻越南）",
+  "career.jse.time2": "2024/02 - 至今 | 主要针对SMT设备和SMT工艺",
+  "career.jse.core": "核心职责：SMT设备管理 + SMT工艺改善 + 工程团队培训",
+  "career.jse.li1": "主导 Fuji 全系列贴片设备（NXT1/2/3代、AimEx系列）编程、调试及优化",
+  "career.jse.li2": "统筹SMT全流程设备运维：印刷机/回流组/AOI/SPI/周边设备联机调试",
+  "career.jse.li3": "制定PM计划并监督执行，主导设备重大故障诊断与维修，MTBA > 400h",
+  "career.jse.li4": "监控SMT线体综合效率，优化贴装顺序与元件库管理，CPH提升15%+",
+  "career.jse.li5": "建立标准化工艺文件库（SOP/WI），主导NPI项目导入，直通率 >98.5%",
+  "career.jse.li6": "管理5-10人技术团队，制定技能矩阵，实施专项培训",
+  "career.jse.li7": "推动智能化升级（设备联网/MES系统对接），实现工艺数据实时监控",
+  "career.jse.li8": "执行ISO9001/ISO13485体系，设备节能改造降低能耗8%-12%",
+  "career.jse.li9": "备件国产化替代等项目降低MTTR 20%+",
+  "career.xk.title": "SMT工程师",
+  "career.xk.company2": "深圳信恳智能电子有限公司",
+  "career.xk.time2": "2022/11 - 2024/02 | 深圳",
+  "career.xk.li1": "负责SMT生产线设备调试、维护和保养，提高设备稼动率",
+  "career.xk.li2": "优化贴片程序和工艺参数，提高贴片质量和生产效率",
+  "career.xk.li3": "处理生产异常（贴片偏移、漏贴、虚焊等），建立快速响应机制",
+  "career.xk.li4": "协助新产品导入（BI系列、Econolite系列），制定SMT生产工艺方案",
+  "career.xk.li5": "新产品试生产良率达到预期目标",
+  "career.lfw.title": "SMT设备工程师",
+  "career.lfw.company2": "乐依文",
+  "career.lfw.time2": "2017/08 - 2022/10 | 半导体（含集成电路设计/封装/测试）",
+  "career.lfw.li1": "按照保养计划完成各设备的保养与维护",
+  "career.lfw.li2": "负责SMT新线体设备的架设及EBO测试",
+  "career.lfw.li3": "Feeder校准与保养，设备大保养后CPK校正",
+  "career.lfw.li4": "产线异常处理与改善，监控设备参数",
+  "career.lfw.li5": "按工艺标准改善产品工艺和品质",
+  "career.lfw.li6": "培训新人岗位操作技能及安全操作规范",
+  "career.qg.title": "SMT主管（生产主管）",
+  "career.qg.badge": "7年",
+  "career.qg.company2": "群光电子(东莞)有限公司",
+  "career.qg.time2": "2010/09 - 2017/07 | 东莞 | 主要生产SPS（电源供应器）及LED灯具",
+  "career.qg.core": "核心职责：SMT生产管理 — 计划/人员/设备/品质全面统筹",
+  "career.qg.li1": "负责生产计划组织安排，合理调配人员和设备，提高生产效率",
+  "career.qg.li2": "对生产过程进行监督指导，同时进行生产质量控制",
+  "career.qg.li3": "参与产品质量问题分析，制定并实施纠正和预防措施",
+  "career.qg.li4": "监督生产过程中的自检和互检，防止不良流入下工序",
+  "career.qg.li5": "建立现场管理制度，指导培训现场管理知识",
+  "career.qg.li6": "推进7S现场管理制度，实施生产车间标准化",
+  "career.qg.li7": "按时考核车间7S执行情况，实施奖惩",
+
+  // Projects detail
+  "proj1.badge": "工艺攻坚",
+  "proj1.company": "捷盛电子（越南）| 2024/07-至今",
+  "proj1.title": "工艺持续改进与专项课题攻关",
+  "proj1.desc": "针对SMT生产过程中焊接一致性及制程稳定性问题，主导2024年度专项工艺改善项目。重点攻关方向：爬锡一致性优化、锡膏印刷稳定性提升、回流组热分布均匀性改进。",
+  "proj1.stat1": "SPI检测稳定性提升",
+  "proj1.stat2": "QFN/LGA虚焊不良率",
+  "proj1.stat2val": "显著↓",
+  "proj1.stat3": "工艺改善模型建立",
+  "proj1.stat3val": "可复制",
+  "proj1.resp": "项目职责：",
+  "proj1.li1": "负责项目整体规划与课题推进，制定实验方案及验证计划",
+  "proj1.li2": "分析AOI、SPI数据与炉温曲线，对异常点进行技术归因与优化验证",
+  "proj1.li3": "主导跨部门问题研讨会议，协调工程、生产、品质三方资源",
+  "proj1.li4": "记录改进过程与验证数据，建立《工艺改进报告与标准参数库》",
+  "proj2.badge": "团队建设",
+  "proj2.company": "捷盛电子（越南）| 2024/03-至今",
+  "proj2.title": "全面统筹SMT生产线的技术培训与技能培养",
+  "proj2.desc": "为配合公司在越南的产能扩张与新产线建设，针对当地技术团队经验不足、设备维护及制程管理能力薄弱等问题，开展系统化的本地化技术建设项目。目标是提升越南工厂的独立运作能力，实现设备管理与工艺技术的可持续发展。",
+  "proj2.stat1": "设备自主维护率",
+  "proj2.stat2val": "20+人次",
+  "proj2.stat2": "组织培训新员工",
+  "proj2.stat3val": "系统化",
+  "proj2.stat3": "培训体系建立",
+  "proj2.resp": "项目成果：",
+  "proj2.li1": "编制并导入《SMT作业培训手册》，涵盖设备点检、程序操作、贴片调机及异常处理",
+  "proj2.li2": "指导本地技术人员完成设备保养、程序调试及制程参数优化的实操训练",
+  "proj2.li3": "建立标准化的技术管理体系与培训评估机制",
+  "proj2.li4": "越南工厂设备自主维护提升至85%以上，显著减少对总部技术支援依赖",
+  "proj2.li5": "形成系统化培训体系，为公司海外基地长期稳定运行奠定技术基础",
+
+  // Skills detail
+  "skills.equip.h3": "设备管理能力",
+  "skills.equip.placement": "贴片机",
+  "skills.equip.placement.desc": "Fuji NXT I/II/III、AIMEX3C、XPF 系列（编程/调试/维修）",
+  "skills.equip.printer": "印刷机",
+  "skills.equip.printer.desc": "DEK、GKG（参数设定/钢网适配/深度调机）",
+  "skills.equip.reflow": "回流组",
+  "skills.equip.reflow.desc": "BTU、HELLER（温度曲线调试/炉膛维护）",
+  "skills.equip.inspect": "检测设备",
+  "skills.equip.inspect.desc": "AOI（OMRON/SAKI）、SPI 程式编写与误报率管控",
+  "skills.process2.h3": "工艺与管理能力",
+  "skills.process2.opt": "工艺优化",
+  "skills.process2.opt.desc": "锡膏印刷控制、回流组曲线设计、焊接缺陷分析（立碑/虚焊/偏移）、SPC",
+  "skills.process2.prod": "生产管理",
+  "skills.process2.prod.desc": "产线运营、人员调配、7S标准化、产能规划、品质管控",
+  "skills.process2.sys": "体系管理",
+  "skills.process2.sys.desc": "ISO9001/ISO13485、TPM、标准化文件编制",
+  "skills.industry.title": "行业与产品经验",
+  "skills.industry.tags": "电源供应器(SPS),LED灯具,半导体封装,消费电子,智能硬件,医疗电子(ISO13485),海外工厂管理,越南制造,NPI量产转化,7S现场管理",
+  "skills.lang.h3": "语言能力",
+  "skills.lang.zh": "普通话（工作应用）",
+  "skills.lang.en2": "英语（基础沟通）",
+  "skills.lang.vn": "越南语（基础沟通）",
+  "contact.copyEmail": "复制邮箱",
+
+  // Contact
+  "contact.title": "联系方式",
+  "contact.subtitle": "期待与您交流SMT设备管理与工艺优化经验",
+  "contact.email": "邮箱",
+  "contact.wechat": "微信",
+  "contact.wechat.scan": "扫码添加微信",
+  "contact.linkedin": "LinkedIn",
+  "contact.linkedin.view": "查看 LinkedIn 主页",
+
+  // Footer
+  "footer.copyright": "© 2026 钱刚 (Bill Qian). SMT Manufacturing Engineering Expert.",
+  "footer.desc": "15年+ SMT设备·工艺·生产全流程管理经验 | 全能型选手 | 东南亚/国内",
+};
+
+// ============================================================
+// 英文翻译
+// ============================================================
+const en: Record<string, string> = {
+  // Nav
+  "nav.results": "Results",
+  "nav.career": "Career",
+  "nav.projects": "Projects",
+  "nav.skills": "Skills",
+  "nav.documents": "Documents",
+  "nav.contact": "Contact",
+  "nav.download": "Resume",
+  "nav.downloadFull": "Download",
+
+  // Hero
+  "hero.status": "Open to Opportunities",
+  "hero.name": "Bill Qian",
+  "hero.nameEn": "钱刚",
+  "hero.title": "SMT ME Manager — Equipment · Process · Production",
+  "hero.desc": "15+ years in SMT process & equipment management · Expert in Fuji full series placement machines · Equipment self-maintenance rate 85%+ · SPI stability improved 30%+",
+  "hero.tag.equipment": "Equipment Eng.",
+  "hero.tag.process": "Process Eng.",
+  "hero.tag.production": "Production Mgmt.",
+  "hero.info.role": "SMT ME Manager",
+  "hero.info.location": "SEA / China",
+  "hero.info.availability": "Exploring Opportunities",
+  "hero.info.status": "Currently Employed",
+
+  // KPI
+  "kpi.title": "Key Metrics",
+  "kpi.subtitle": "Data-driven results across equipment maintenance, process optimization, and production management",
+  "kpi.experience": "Industry Experience",
+  "kpi.maintenance": "Self-Maintenance Rate",
+  "kpi.spi": "SPI Stability Improvement",
+  "kpi.uptime": "Equipment Uptime (OEE)",
+  "kpi.lines": "Production Lines Managed",
+  "kpi.firstpass": "First-Pass Yield",
+  "kpi.costdown": "Annual Cost Reduction",
+  "kpi.efficiency": "Capacity Improvement",
+
+  // Core Competency
+  "core.title": "Core Competencies",
+  "core.subtitle": "Equipment Engineering / Process Engineering / Production Management — 15 years of cross-domain expertise",
+  "core.equip.title": "Equipment Engineering",
+  "core.equip.desc": "Expert in Fuji full series (NXT III/AIM/XPF) maintenance & debugging. Familiar with DEK/MPM printers, Heller reflow ovens. Self-maintenance rate 85%+, significantly reducing external repair dependency. Skilled in preventive maintenance systems, spare parts management & rapid fault diagnosis.",
+  "core.process.title": "SMT Process Optimization",
+  "core.process.desc": "Led stencil design optimization, solder paste printing parameter tuning, and reflow temperature profiling. Successfully resolved 0.3mm Pitch BGA printing short-circuit issues, improving SPI stability by 30%+. Proficient in DOE experimental design for systematic defect resolution.",
+  "core.prod.title": "Production Management",
+  "core.prod.desc": "7 years as SMT Production Supervisor (Chicony Electronics), managing 20+ person teams. Expert in production scheduling, personnel allocation, and quality control. Drove standardized SOPs achieving 8-12% capacity improvement. Skilled in cross-department coordination and Vietnam localization team building.",
+
+  // Career
+  "career.title": "Career History",
+  "career.jse.role": "SMT Manager (ME Manager)",
+  "career.jse.company": "JSE Electronics (Vietnam)",
+  "career.jse.time": "2024/02 - Present | Vietnam",
+  "career.jse.desc": "Responsible for SMT equipment management and process optimization at Vietnam factory. Led Fuji NXT III/AIM series maintenance system establishment, built preventive maintenance program. Drove SPI printing process improvement, resolved 0.3mm Pitch BGA short-circuit challenges. Led Vietnam localization technical team training, authored bilingual training materials.",
+  "career.xk.role": "SMT Engineer",
+  "career.xk.company": "Shenzhen Xinken Intelligent Electronics Co., Ltd.",
+  "career.xk.time": "2022/11 - 2024/02 | Shenzhen",
+  "career.xk.desc": "Responsible for SMT line equipment maintenance and process optimization. Managed Fuji placement machine daily maintenance and troubleshooting. Participated in NPI process evaluation and stencil design optimization.",
+  "career.lfw.role": "SMT Equipment Engineer",
+  "career.lfw.company": "Leyiwen (Semiconductor) | DIP",
+  "career.lfw.time": "2022/04 - 2022/10 | Shenzhen",
+  "career.lfw.desc": "Responsible for SMT/DIP equipment maintenance in semiconductor industry. Accumulated equipment management experience in semiconductor packaging, broadening industry perspective.",
+  "career.qg.role": "SMT Supervisor (Production Supervisor)",
+  "career.qg.company": "Chicony Power (Suzhou/Chongqing)",
+  "career.qg.time": "2015/03 - 2022/03 | Suzhou/Chongqing",
+  "career.qg.desc": "7 years of production management experience, growing from technician to SMT Production Supervisor. Managed 20+ person team, responsible for multi-line production scheduling, quality control, and personnel training. Drove autonomous maintenance system with continuous OEE improvement. Led multiple cost reduction projects, achieving 8-12% annual consumable cost savings.",
+
+  // Projects
+  "projects.title": "Key Projects",
+  "projects.p1.title": "Process Improvement — 0.3mm Pitch BGA Resolution",
+  "projects.p1.desc": "Addressed 0.3mm Pitch BGA printing short-circuit issues through DOE experiments optimizing stencil aperture design, solder paste printing parameters, and reflow temperature profiles for systematic defect resolution.",
+  "projects.p1.r1": "Yield ↑",
+  "projects.p1.r2": "Replicable",
+  "projects.p2.title": "Vietnam SMT Line Localization Training & Team Building",
+  "projects.p2.desc": "Built Vietnam localization technical team from scratch, authored bilingual training materials, established systematic training from theory to hands-on practice, enabling independent operator certification.",
+  "projects.p2.r1": "5+ Batches",
+  "projects.p2.r2": "30+ Trained",
+  "projects.p2.r3": "Systematic",
+
+  // Skills
+  "skills.title": "Skill Matrix",
+  "skills.radar.equipment": "Equipment",
+  "skills.radar.process": "Process",
+  "skills.radar.production": "Production",
+  "skills.radar.team": "Team Building",
+  "skills.radar.npi": "NPI",
+  "skills.radar.cost": "Cost Reduction",
+  "skills.equip.title": "Equipment Skills",
+  "skills.equip.items": "Fuji NXT III / AIM / XPF Full Series | DEK/MPM Printers | Heller Reflow | SPI/AOI Inspection | Preventive Maintenance Systems",
+  "skills.process.title": "Process Skills",
+  "skills.process.items": "Stencil Design Optimization | Solder Paste Printing | Reflow Profiling | DOE Experimental Design | SPI Data Analysis | BGA/QFN/0201 Process",
+  "skills.prod.title": "Management Skills",
+  "skills.prod.items": "Production Scheduling & Capacity Planning | Team Building & Training | Quality Control Systems | Cost Reduction Projects | Cross-dept Coordination | Vietnam Localization",
+  "skills.lang.title": "Languages",
+  "skills.lang.items": "Mandarin (Native) | English (Basic Communication) | Vietnamese (Basic Communication)",
+
+  // Documents
+  "docs.title": "Professional Documents",
+  "docs.subtitle": "Real work deliverables — Training materials, technical reports, equipment analysis",
+  "docs.d1.title": "SMT Operator Training",
+  "docs.d1.desc": "Theory to Practice (Pro Edition) — Vietnam factory localization training material",
+  "docs.d2.title": "0.3 Pitch BGA Print Short Improvement",
+  "docs.d2.desc": "Technical Report — Process improvement case study",
+  "docs.d3.title": "SMT Equipment Operation Analysis Report",
+  "docs.d3.desc": "2019 Q1 Skill-driven Edition — OEE & fault analysis",
+  "docs.download": "Download PPTX",
+
+  // Core detail
+  "core.equip.h3": "SMT Equipment Engineering",
+  "core.equip.li1": "Expert in Fuji NXT I/II/III, AIMEX3C, XPF full series placement machine programming, debugging & repair",
+  "core.equip.li2": "Printer (DEK/GKG) deep tuning & stencil optimization",
+  "core.equip.li3": "Reflow oven (BTU/HELLER) temperature profiling & furnace maintenance",
+  "core.equip.li4": "AOI/SPI (OMRON/SAKI) inspection program development & data analysis",
+  "core.equip.li5": "PM plan development, MTBA > 400h",
+  "core.equip.stat": "Self-maintenance rate 85%+ | MTTR ↓20%",
+  "core.process.h3": "SMT Process Engineering",
+  "core.process.li1": "Full SMT process expertise: solder paste printing / placement / reflow full-chain optimization",
+  "core.process.li2": "SPI inspection stability improved 30%+",
+  "core.process.li3": "QFN/LGA component soldering yield significantly improved",
+  "core.process.li4": "Wetting consistency optimization, cold solder/offset defect analysis & resolution",
+  "core.process.li5": "NPI new product introduction, mass production first-pass yield >98.5%",
+  "core.process.li6": "Established standardized process document library (SOP/WI)",
+  "core.process.stat": "CPH improved 15%+ | Established replicable process improvement model",
+  "core.prod.h3": "Production Management",
+  "core.prod.li1": "7 years SMT Production Supervisor at Chicony Electronics (SPS power/LED lighting)",
+  "core.prod.li2": "Production planning, personnel allocation & capacity layout",
+  "core.prod.li3": "Production process supervision & quality control",
+  "core.prod.li4": "Promoted 7S workplace management standardization",
+  "core.prod.li5": "Established on-site management systems & training programs",
+  "core.prod.li6": "Cross-department collaboration (PE/QE/ME/Production)",
+  "core.prod.stat": "7-year Production Supervisor | Team Management | 7S Standardization",
+
+  // Career detail
+  "career.jse.title": "SMT Manager (ME Manager)",
+  "career.jse.badge": "Current",
+  "career.jse.company2": "Dongguan JSE Electronics Co., Ltd. (Vietnam)",
+  "career.jse.time2": "2024/02 - Present | Focus on SMT Equipment & Process",
+  "career.jse.core": "Core: SMT Equipment Management + Process Improvement + Team Training",
+  "career.jse.li1": "Led Fuji full series placement (NXT 1/2/3, AimEx series) programming, debugging & optimization",
+  "career.jse.li2": "Managed full SMT line equipment: printer/reflow/AOI/SPI/peripheral equipment integration",
+  "career.jse.li3": "Developed PM plans, led major fault diagnosis & repair, MTBA > 400h",
+  "career.jse.li4": "Monitored SMT line OEE, optimized placement sequence & component library, CPH +15%",
+  "career.jse.li5": "Established standardized process docs (SOP/WI), led NPI projects, first-pass yield >98.5%",
+  "career.jse.li6": "Managed 5-10 person technical team, developed skill matrix & specialized training",
+  "career.jse.li7": "Drove smart manufacturing upgrade (equipment networking/MES integration), real-time process monitoring",
+  "career.jse.li8": "Implemented ISO9001/ISO13485, equipment energy-saving retrofit reducing consumption 8-12%",
+  "career.jse.li9": "Spare parts localization projects reducing MTTR 20%+",
+  "career.xk.title": "SMT Engineer",
+  "career.xk.company2": "Shenzhen Xinken Intelligent Electronics Co., Ltd.",
+  "career.xk.time2": "2022/11 - 2024/02 | Shenzhen",
+  "career.xk.li1": "SMT production line equipment debugging, maintenance & servicing, improving OEE",
+  "career.xk.li2": "Optimized placement programs & process parameters, improving quality & efficiency",
+  "career.xk.li3": "Handled production anomalies (placement offset, missing parts, cold solder), established rapid response",
+  "career.xk.li4": "Assisted NPI (BI series, Econolite series), developed SMT production process plans",
+  "career.xk.li5": "New product trial production yield met target goals",
+  "career.lfw.title": "SMT Equipment Engineer",
+  "career.lfw.company2": "Leyiwen",
+  "career.lfw.time2": "2017/08 - 2022/10 | Semiconductor (IC Design/Packaging/Testing)",
+  "career.lfw.li1": "Completed equipment maintenance per PM schedule",
+  "career.lfw.li2": "Responsible for new SMT line equipment setup & EBO testing",
+  "career.lfw.li3": "Feeder calibration & maintenance, CPK verification after major PM",
+  "career.lfw.li4": "Production line anomaly handling & improvement, equipment parameter monitoring",
+  "career.lfw.li5": "Process & quality improvement per engineering standards",
+  "career.lfw.li6": "Trained new operators on job skills & safety procedures",
+  "career.qg.title": "SMT Supervisor (Production Supervisor)",
+  "career.qg.badge": "7 yrs",
+  "career.qg.company2": "Chicony Electronics (Dongguan) Co., Ltd.",
+  "career.qg.time2": "2010/09 - 2017/07 | Dongguan | SPS (Power Supply) & LED Lighting",
+  "career.qg.core": "Core: SMT Production Management — Planning/Personnel/Equipment/Quality",
+  "career.qg.li1": "Production planning & scheduling, personnel & equipment allocation for efficiency",
+  "career.qg.li2": "Production process supervision & quality control",
+  "career.qg.li3": "Product quality problem analysis, corrective & preventive action implementation",
+  "career.qg.li4": "Supervised in-process self-inspection & mutual inspection, preventing defect flow",
+  "career.qg.li5": "Established on-site management systems, trained management knowledge",
+  "career.qg.li6": "Promoted 7S workplace management, production floor standardization",
+  "career.qg.li7": "Regular 7S audits with reward/penalty implementation",
+
+  // Projects detail
+  "proj1.badge": "Process",
+  "proj1.company": "JSE Electronics (Vietnam) | 2024/07-Present",
+  "proj1.title": "Continuous Process Improvement & Technical Challenges",
+  "proj1.desc": "Led 2024 annual process improvement projects addressing soldering consistency and process stability in SMT production. Key focus: wetting consistency optimization, solder paste printing stability, reflow thermal distribution uniformity.",
+  "proj1.stat1": "SPI Stability Improvement",
+  "proj1.stat2": "QFN/LGA Cold Solder Rate",
+  "proj1.stat2val": "Significant ↓",
+  "proj1.stat3": "Process Improvement Model",
+  "proj1.stat3val": "Replicable",
+  "proj1.resp": "Responsibilities:",
+  "proj1.li1": "Overall project planning & topic advancement, experimental design & validation plans",
+  "proj1.li2": "Analyzed AOI, SPI data & reflow profiles, technical root cause analysis & optimization",
+  "proj1.li3": "Led cross-department problem-solving meetings, coordinated Engineering/Production/Quality resources",
+  "proj1.li4": "Documented improvement process & validation data, established Process Improvement Report & Standard Parameter Library",
+  "proj2.badge": "Team Building",
+  "proj2.company": "JSE Electronics (Vietnam) | 2024/03-Present",
+  "proj2.title": "SMT Production Line Technical Training & Skill Development",
+  "proj2.desc": "To support Vietnam capacity expansion & new line construction, addressing local team inexperience in equipment maintenance & process management, launched systematic localization technical development project. Goal: enhance Vietnam factory independent operation capability for sustainable equipment & process technology development.",
+  "proj2.stat1": "Equipment Self-Maintenance Rate",
+  "proj2.stat2val": "20+ persons",
+  "proj2.stat2": "New Employee Training",
+  "proj2.stat3val": "Systematic",
+  "proj2.stat3": "Training System Established",
+  "proj2.resp": "Project Results:",
+  "proj2.li1": "Authored & implemented SMT Operation Training Manual covering equipment inspection, program operation, placement tuning & anomaly handling",
+  "proj2.li2": "Guided local technicians through equipment maintenance, program debugging & process parameter optimization hands-on training",
+  "proj2.li3": "Established standardized technical management system & training evaluation mechanism",
+  "proj2.li4": "Vietnam factory self-maintenance rate raised to 85%+, significantly reducing HQ technical support dependency",
+  "proj2.li5": "Formed systematic training system, laying technical foundation for long-term stable overseas operations",
+
+  // Skills detail
+  "skills.equip.h3": "Equipment Management",
+  "skills.equip.placement": "Placement Machines",
+  "skills.equip.placement.desc": "Fuji NXT I/II/III, AIMEX3C, XPF Series (Programming/Debugging/Repair)",
+  "skills.equip.printer": "Printers",
+  "skills.equip.printer.desc": "DEK, GKG (Parameter Setting/Stencil Adaptation/Deep Tuning)",
+  "skills.equip.reflow": "Reflow Ovens",
+  "skills.equip.reflow.desc": "BTU, HELLER (Temperature Profiling/Furnace Maintenance)",
+  "skills.equip.inspect": "Inspection Equipment",
+  "skills.equip.inspect.desc": "AOI (OMRON/SAKI), SPI Program Development & False Call Control",
+  "skills.process2.h3": "Process & Management",
+  "skills.process2.opt": "Process Optimization",
+  "skills.process2.opt.desc": "Solder paste printing control, reflow profiling, defect analysis (tombstone/cold solder/offset), SPC",
+  "skills.process2.prod": "Production Management",
+  "skills.process2.prod.desc": "Line operations, personnel allocation, 7S standardization, capacity planning, quality control",
+  "skills.process2.sys": "System Management",
+  "skills.process2.sys.desc": "ISO9001/ISO13485, TPM, standardized documentation",
+  "skills.industry.title": "Industry & Product Experience",
+  "skills.industry.tags": "Power Supply (SPS),LED Lighting,Semiconductor Packaging,Consumer Electronics,Smart Hardware,Medical Electronics (ISO13485),Overseas Factory Management,Vietnam Manufacturing,NPI Mass Production,7S Workplace Management",
+  "skills.lang.h3": "Languages",
+  "skills.lang.zh": "Mandarin (Working Proficiency)",
+  "skills.lang.en2": "English (Basic Communication)",
+  "skills.lang.vn": "Vietnamese (Basic Communication)",
+  "contact.copyEmail": "Copy Email",
+
+  // Contact
+  "contact.title": "Contact",
+  "contact.subtitle": "Looking forward to discussing SMT equipment management and process optimization",
+  "contact.email": "Email",
+  "contact.wechat": "WeChat",
+  "contact.wechat.scan": "Scan to add WeChat",
+  "contact.linkedin": "LinkedIn",
+  "contact.linkedin.view": "View LinkedIn Profile",
+
+  // Footer
+  "footer.copyright": "© 2026 Bill Qian (钱刚). SMT Manufacturing Engineering Expert.",
+  "footer.desc": "15+ years SMT Equipment · Process · Production full-cycle management | All-round Expert | SEA/China",
+};
