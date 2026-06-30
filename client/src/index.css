@@ -82,6 +82,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -103,6 +107,56 @@
 }
 
 @layer components {
+  .site-shell {
+    --pointer-x: 50vw;
+    --pointer-y: 50vh;
+    position: relative;
+    isolation: isolate;
+    overflow-x: hidden;
+  }
+
+  .site-shell::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    width: 22rem;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      oklch(0.75 0.18 220 / 0.045),
+      oklch(0.82 0.16 85 / 0.035),
+      transparent
+    );
+    transform: translateX(calc(var(--pointer-x) - 11rem));
+    transition: transform 120ms linear;
+  }
+
+  .site-shell > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 60;
+    width: 100%;
+    height: 3px;
+    transform-origin: left center;
+    background: linear-gradient(
+      90deg,
+      oklch(0.75 0.18 220),
+      oklch(0.82 0.16 85),
+      oklch(0.68 0.2 150)
+    );
+    box-shadow: 0 0 18px oklch(0.75 0.18 220 / 0.45);
+  }
+
   .container {
     width: 100%;
     margin-left: auto;
@@ -131,6 +185,28 @@
     }
   }
 
+  header nav a {
+    position: relative;
+    padding-bottom: 0.25rem;
+  }
+
+  header nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, oklch(0.75 0.18 220), oklch(0.82 0.16 85));
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 220ms ease;
+  }
+
+  header nav a:hover::after {
+    transform: scaleX(1);
+  }
+
   /* 霓虹光效文字 */
   .neon-text {
     color: oklch(0.75 0.18 220);
@@ -152,14 +228,47 @@
   .glass-panel {
     background: oklch(0.16 0.012 250 / 0.8);
     border: 1px solid oklch(0.32 0.02 250 / 0.5);
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     backdrop-filter: blur(12px);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    position: relative;
+    transform: translateZ(0);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  }
+
+  .glass-panel > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      transparent 0%,
+      transparent 38%,
+      oklch(0.75 0.18 220 / 0.08) 48%,
+      oklch(0.82 0.16 85 / 0.07) 52%,
+      transparent 62%,
+      transparent 100%
+    );
+    transform: translateX(-120%);
+    transition: transform 650ms ease;
   }
 
   .glass-panel:hover {
     border-color: oklch(0.75 0.18 220 / 0.4);
     box-shadow: 0 0 20px oklch(0.75 0.18 220 / 0.08);
+    transform: translateY(-4px);
+    background: oklch(0.17 0.014 250 / 0.88);
+  }
+
+  .glass-panel:hover::after {
+    transform: translateX(120%);
   }
 
   /* 霓虹边框 */
@@ -196,12 +305,13 @@
   .metric-card {
     background: oklch(0.14 0.012 250 / 0.9);
     border: 1px solid oklch(0.32 0.02 250 / 0.4);
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     padding: 1rem;
     text-align: center;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s ease;
+    isolation: isolate;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   }
 
   @media (min-width: 768px) {
@@ -228,15 +338,31 @@
 
   .metric-card:hover {
     border-color: oklch(0.75 0.18 220 / 0.5);
-    transform: translateY(-2px);
+    transform: translateY(-5px);
     box-shadow: 0 8px 30px oklch(0.75 0.18 220 / 0.1);
+  }
+
+  .metric-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(135deg, oklch(0.75 0.18 220 / 0.1), transparent 35%),
+      linear-gradient(315deg, oklch(0.82 0.16 85 / 0.08), transparent 40%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .metric-card:hover::after {
+    opacity: 1;
   }
 
   /* 技术标题 */
   .tech-heading {
     font-size: 1.5rem;
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
     color: oklch(0.95 0.005 250);
   }
 
@@ -254,6 +380,120 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+  }
+
+  .hero-stage {
+    background:
+      linear-gradient(180deg, oklch(0.1 0.012 250), oklch(0.12 0.01 250) 46%, oklch(0.1 0.012 250));
+  }
+
+  .hero-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      110deg,
+      transparent 0%,
+      transparent 42%,
+      oklch(0.75 0.18 220 / 0.08) 48%,
+      oklch(0.82 0.16 85 / 0.05) 51%,
+      transparent 58%,
+      transparent 100%
+    );
+    animation: sweepAcross 9s ease-in-out infinite;
+  }
+
+  .circuit-flow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.46;
+    background-image:
+      linear-gradient(90deg, transparent 0 74%, oklch(0.75 0.18 220 / 0.28) 75%, transparent 76%),
+      linear-gradient(0deg, transparent 0 82%, oklch(0.82 0.16 85 / 0.2) 83%, transparent 84%),
+      linear-gradient(90deg, transparent 0 45%, oklch(0.68 0.2 150 / 0.18) 46%, transparent 47%);
+    background-size: 220px 120px, 180px 180px, 320px 220px;
+    animation: circuitDrift 16s linear infinite;
+  }
+
+  .scanline-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.18;
+    background: repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 14px,
+      oklch(0.75 0.18 220 / 0.16) 15px,
+      transparent 16px
+    );
+    animation: scanlineMove 7s linear infinite;
+  }
+
+  .floating-process-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .dynamic-chip {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 4.5rem;
+    height: 2rem;
+    padding: 0 0.875rem;
+    border: 1px solid oklch(0.75 0.18 220 / 0.28);
+    border-radius: 0.5rem;
+    background: oklch(0.14 0.012 250 / 0.7);
+    color: oklch(0.8 0.08 220);
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 0 20px oklch(0.75 0.18 220 / 0.1);
+    animation: floatChip 7s ease-in-out infinite;
+  }
+
+  .chip-a { top: 18%; left: 8%; animation-delay: 0s; }
+  .chip-b { top: 30%; right: 12%; animation-delay: 0.9s; }
+  .chip-c { bottom: 23%; left: 11%; animation-delay: 1.6s; }
+  .chip-d { bottom: 18%; right: 18%; animation-delay: 2.4s; }
+  .chip-e { top: 52%; left: 4%; animation-delay: 3.1s; }
+  .chip-f { top: 61%; right: 6%; animation-delay: 3.8s; }
+
+  .hero-badge {
+    animation: badgeSignal 3.2s ease-in-out infinite;
+  }
+
+  .hero-title {
+    letter-spacing: 0;
+  }
+
+  .hero-title .text-foreground {
+    background: linear-gradient(90deg, oklch(0.96 0.005 250), oklch(0.8 0.08 220), oklch(0.96 0.005 250));
+    background-size: 200% auto;
+    color: transparent;
+    background-clip: text;
+    animation: titleFlow 6s linear infinite;
+  }
+
+  .dynamic-tag {
+    animation: tagLift 5s ease-in-out infinite;
+    transform: translateZ(0);
+  }
+
+  .dynamic-tag:nth-child(2) {
+    animation-delay: 0.55s;
+  }
+
+  .dynamic-tag:nth-child(3) {
+    animation-delay: 1.1s;
+  }
+
+  .hero-info-panel {
+    animation: panelBreathe 5.5s ease-in-out infinite;
   }
 
   /* 滚动动画 */
@@ -290,19 +530,22 @@
       linear-gradient(oklch(0.28 0.02 250 / 0.3) 1px, transparent 1px),
       linear-gradient(90deg, oklch(0.28 0.02 250 / 0.3) 1px, transparent 1px);
     background-size: 60px 60px;
+    animation: gridDrift 20s linear infinite;
   }
 
   /* 渐变分隔线 */
   .gradient-divider {
     height: 1px;
     background: linear-gradient(90deg, transparent, oklch(0.75 0.18 220 / 0.5), oklch(0.82 0.16 85 / 0.3), transparent);
+    background-size: 200% 100%;
+    animation: dividerPulse 6s ease-in-out infinite;
   }
 
   /* 推荐卡片 */
   .testimonial-card {
     background: oklch(0.16 0.012 250 / 0.8);
     border: 1px solid oklch(0.32 0.02 250 / 0.4);
-    border-radius: 0.75rem;
+    border-radius: 0.5rem;
     padding: 2rem;
     position: relative;
     transition: all 0.3s ease;
@@ -322,5 +565,83 @@
   .testimonial-card:hover {
     border-color: oklch(0.75 0.18 220 / 0.4);
     box-shadow: 0 0 25px oklch(0.75 0.18 220 / 0.08);
+  }
+
+  @keyframes circuitDrift {
+    from { background-position: 0 0, 0 0, 0 0; }
+    to { background-position: 220px 120px, -180px 180px, 320px -220px; }
+  }
+
+  @keyframes scanlineMove {
+    from { background-position-y: 0; }
+    to { background-position-y: 160px; }
+  }
+
+  @keyframes sweepAcross {
+    0%, 72%, 100% { transform: translateX(-80%); opacity: 0; }
+    18%, 42% { opacity: 1; }
+    52% { transform: translateX(80%); opacity: 0; }
+  }
+
+  @keyframes gridDrift {
+    from { background-position: 0 0; }
+    to { background-position: 60px 60px; }
+  }
+
+  @keyframes floatChip {
+    0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.45; }
+    45% { transform: translate3d(0.5rem, -0.9rem, 0); opacity: 0.92; }
+  }
+
+  @keyframes badgeSignal {
+    0%, 100% { box-shadow: 0 0 0 oklch(0.75 0.18 220 / 0); }
+    50% { box-shadow: 0 0 22px oklch(0.75 0.18 220 / 0.18); }
+  }
+
+  @keyframes titleFlow {
+    from { background-position: 0% center; }
+    to { background-position: 200% center; }
+  }
+
+  @keyframes tagLift {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-0.35rem); }
+  }
+
+  @keyframes panelBreathe {
+    0%, 100% { box-shadow: inset 0 0 15px oklch(0.75 0.18 220 / 0.05), 0 0 15px oklch(0.75 0.18 220 / 0.05); }
+    50% { box-shadow: inset 0 0 24px oklch(0.75 0.18 220 / 0.09), 0 0 30px oklch(0.82 0.16 85 / 0.1); }
+  }
+
+  @keyframes dividerPulse {
+    0%, 100% { background-position: 0% center; opacity: 0.75; }
+    50% { background-position: 100% center; opacity: 1; }
+  }
+
+  @media (max-width: 767px) {
+    .site-shell::before,
+    .floating-process-layer {
+      display: none;
+    }
+
+    .glass-panel:hover,
+    .metric-card:hover {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Linkedin, Mail, Copy, Check, Download, Briefcase, Award, Users, Zap, MapPin, Calendar, Target, ChevronDown, Wrench, Settings, Factory, Globe } from "lucide-react";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type PointerEvent } from "react";
 import { toast } from "sonner";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -14,14 +14,17 @@ function useParticles(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
 
     let animationId: number;
     let particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number }[] = [];
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(canvas.offsetWidth * ratio);
+      canvas.height = Math.floor(canvas.offsetHeight * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
 
     const initParticles = () => {
@@ -76,16 +79,42 @@ function useParticles(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
     initParticles();
     draw();
 
-    window.addEventListener("resize", () => {
+    const handleResize = () => {
       resize();
       initParticles();
-    });
+    };
+
+    window.addEventListener("resize", handleResize);
 
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [canvasRef]);
+}
+
+/* ============================================================
+   页面滚动进度 Hook
+   ============================================================ */
+function useScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(maxScroll > 0 ? window.scrollY / maxScroll : 0);
+    };
+
+    updateProgress();
+    window.addEventListener("scroll", updateProgress, { passive: true });
+    window.addEventListener("resize", updateProgress);
+    return () => {
+      window.removeEventListener("scroll", updateProgress);
+      window.removeEventListener("resize", updateProgress);
+    };
+  }, []);
+
+  return progress;
 }
 
 /* ============================================================
@@ -288,9 +317,16 @@ export default function Home() {
   const careerReveal = useScrollReveal();
   const projectsReveal = useScrollReveal();
   const skillsReveal = useScrollReveal();
+  const docsReveal = useScrollReveal();
 
   const [navScrolled, setNavScrolled] = useState(false);
+  const scrollProgress = useScrollProgress();
   const { t, lang, setLang } = useLanguage();
+
+  const handlePointerMove = useCallback((event: PointerEvent<HTMLDivElement>) => {
+    event.currentTarget.style.setProperty("--pointer-x", `${event.clientX}px`);
+    event.currentTarget.style.setProperty("--pointer-y", `${event.clientY}px`);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setNavScrolled(window.scrollY > 50);
@@ -299,7 +335,8 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="site-shell min-h-screen bg-background text-foreground" onPointerMove={handlePointerMove}>
+      <div className="scroll-progress" style={{ transform: `scaleX(${scrollProgress})` }} />
       {/* 导航栏 - 霓虹光效 */}
       <header className={`sticky top-0 z-50 transition-all duration-300 ${navScrolled ? "bg-background/95 backdrop-blur-xl border-b border-[oklch(0.75_0.18_220/0.2)] shadow-[0_2px_20px_oklch(0.75_0.18_220/0.05)]" : "bg-transparent border-b border-transparent"}`}>
         <div className="container flex items-center justify-between py-3 md:py-4">
@@ -350,9 +387,19 @@ export default function Home() {
       {/* ============================================================
           Hero 区 - 粒子动画 + 网格背景
           ============================================================ */}
-      <section className="relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
+      <section className="hero-stage relative min-h-[80vh] md:min-h-[90vh] flex items-center justify-center overflow-hidden">
         {/* 粒子画布 */}
         <canvas ref={canvasRef} className="particles-canvas" />
+        <div className="circuit-flow" aria-hidden="true" />
+        <div className="scanline-layer" aria-hidden="true" />
+        <div className="floating-process-layer" aria-hidden="true">
+          <span className="dynamic-chip chip-a">AOI</span>
+          <span className="dynamic-chip chip-b">SPI</span>
+          <span className="dynamic-chip chip-c">X-Ray</span>
+          <span className="dynamic-chip chip-d">NXT</span>
+          <span className="dynamic-chip chip-e">Reflow</span>
+          <span className="dynamic-chip chip-f">PCB</span>
+        </div>
         {/* 网格背景 */}
         <div className="absolute inset-0 grid-bg opacity-40" />
         {/* 渐变遮罩 */}
@@ -361,12 +408,12 @@ export default function Home() {
         <div className="container relative z-10 text-center py-12 md:py-20" ref={heroReveal.ref}>
           <div className={`transition-all duration-1000 ${heroReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}>
             {/* 状态标签 */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[oklch(0.75_0.18_220/0.3)] bg-[oklch(0.75_0.18_220/0.05)] mb-8">
+            <div className="hero-badge inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[oklch(0.75_0.18_220/0.3)] bg-[oklch(0.75_0.18_220/0.05)] mb-8">
               <span className="w-2 h-2 rounded-full bg-[oklch(0.7_0.2_150)] animate-pulse" />
               <span className="text-sm text-muted-foreground">{t("hero.status")}</span>
             </div>
 
-            <h1 className="text-3xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight">
+            <h1 className="hero-title text-3xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight">
               <span className="text-foreground">{t("hero.name")}</span>
               <span className="text-muted-foreground text-xl md:text-3xl lg:text-4xl ml-3 md:ml-4 font-normal">{t("hero.nameEn")}</span>
             </h1>
@@ -381,22 +428,22 @@ export default function Home() {
 
             {/* 三位一体标签 */}
             <div className="flex flex-wrap justify-center gap-3 mb-6 md:mb-10">
-              <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[oklch(0.75_0.18_220/0.4)] bg-[oklch(0.75_0.18_220/0.08)] text-sm text-[oklch(0.8_0.12_220)]">
+              <span className="dynamic-tag inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[oklch(0.75_0.18_220/0.4)] bg-[oklch(0.75_0.18_220/0.08)] text-sm text-[oklch(0.8_0.12_220)]">
                 <Wrench className="w-3.5 h-3.5" />
                 {t("hero.tag.equipment")}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[oklch(0.82_0.16_85/0.4)] bg-[oklch(0.82_0.16_85/0.08)] text-sm text-[oklch(0.85_0.12_85)]">
+              <span className="dynamic-tag inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[oklch(0.82_0.16_85/0.4)] bg-[oklch(0.82_0.16_85/0.08)] text-sm text-[oklch(0.85_0.12_85)]">
                 <Settings className="w-3.5 h-3.5" />
                 {t("hero.tag.process")}
               </span>
-              <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[oklch(0.7_0.2_150/0.4)] bg-[oklch(0.7_0.2_150/0.08)] text-sm text-[oklch(0.75_0.15_150)]">
+              <span className="dynamic-tag inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[oklch(0.7_0.2_150/0.4)] bg-[oklch(0.7_0.2_150/0.08)] text-sm text-[oklch(0.75_0.15_150)]">
                 <Factory className="w-3.5 h-3.5" />
                 {t("hero.tag.production")}
               </span>
             </div>
 
             {/* 求职意向栏 */}
-            <div className="glass-panel neon-border p-4 md:p-6 max-w-2xl mx-auto mb-8 md:mb-12">
+            <div className="hero-info-panel glass-panel neon-border p-4 md:p-6 max-w-2xl mx-auto mb-8 md:mb-12">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div className="flex items-center gap-2 justify-center">
                   <Target className="w-4 h-4 neon-text" />
@@ -844,12 +891,13 @@ export default function Home() {
           专业文档展示
           ============================================================ */}
       <section id="documents" className="py-14 md:py-28">
-        <div className="container max-w-4xl mx-auto">
-          <div className="gradient-divider mb-16" />
-          <h2 className="tech-heading mb-4 text-center">{t("docs.title")}</h2>
-          <p className="text-center text-muted-foreground mb-12">{t("docs.subtitle")}</p>
+        <div className="container max-w-4xl mx-auto" ref={docsReveal.ref}>
+          <div className={`transition-all duration-700 ${docsReveal.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+            <div className="gradient-divider mb-16" />
+            <h2 className="tech-heading mb-4 text-center">{t("docs.title")}</h2>
+            <p className="text-center text-muted-foreground mb-12">{t("docs.subtitle")}</p>
           
-          <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
             {/* 文档 1: SMT新人调机培训 */}
             <a 
               href="/bill-qian-portfolio/assets/smt_training.pptx" 
@@ -918,6 +966,7 @@ export default function Home() {
                 <span>{t("docs.download")}</span>
               </div>
             </a>
+            </div>
           </div>
         </div>
       </section>
